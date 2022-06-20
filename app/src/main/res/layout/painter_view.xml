@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btn_size1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_size2"
+        app:layout_constraintBottom_toTopOf="@id/btn_undo" />
+    <Button
+        android:id="@+id/btn_size2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="2"
+        app:layout_constraintLeft_toRightOf="@id/btn_size1"
+        app:layout_constraintRight_toLeftOf="@id/btn_size3"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+    <Button
+        android:id="@+id/btn_size3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="3"
+        app:layout_constraintLeft_toRightOf="@id/btn_size2"
+        app:layout_constraintRight_toLeftOf="@id/btn_color_red"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+    <Button
+        android:id="@+id/btn_color_red"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="R"
+        android:backgroundTint="#FF0000"
+        app:layout_constraintLeft_toRightOf="@id/btn_size3"
+        app:layout_constraintRight_toLeftOf="@id/btn_color_green"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+    <Button
+        android:id="@+id/btn_color_green"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="G"
+        android:backgroundTint="#00FF00"
+        app:layout_constraintLeft_toRightOf="@id/btn_color_red"
+        app:layout_constraintRight_toLeftOf="@id/btn_color_blue"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+    <Button
+        android:id="@+id/btn_color_blue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="B"
+        android:backgroundTint="#0000FF"
+        app:layout_constraintLeft_toRightOf="@id/btn_color_green"
+        app:layout_constraintRight_toLeftOf="@id/btn_color_clear"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+    <Button
+        android:id="@+id/btn_color_clear"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:text="C"
+        app:layout_constraintLeft_toRightOf="@id/btn_color_blue"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btn_size1" />
+
+    <Button
+        android:id="@+id/btn_undo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="UNDO"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_redo"
+        app:layout_constraintBottom_toTopOf="@id/btn_clear_all"/>
+
+    <Button
+        android:id="@+id/btn_redo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:text="REDO"
+        app:layout_constraintLeft_toRightOf="@id/btn_undo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_clear_all" />
+
+    <Button
+        android:id="@+id/btn_clear_all"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="clear all"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,25 +6,23 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isEmpty
-import com.monkey.paintertest.databinding.PainterViewBinding
 import java.util.ArrayList
 
-class PainterView : ConstraintLayout {
-    private val mBinding: PainterViewBinding by lazy {
-        PainterViewBinding.bind(inflate(context, R.layout.painter_view, this))
-    }
+class PaintView : View {
     private var mPaint: Paint?
-
     private var drawPoints = ArrayList<DrawPoint>()
+
     private var lastPoints = ArrayList<DrawPoint>()
-
     private val lastHistory = DrawPointHistory()
-    private val undoHistory = DrawPointHistory()
 
+    private val undoHistory = DrawPointHistory()
     var mBrushSize = 1
+
     var mBrushColor:Int = Color.BLACK
     var isEreaser:Boolean = false
+    var isLastActionClear = false
+
+    lateinit var invalidateListener: Runnable
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -42,69 +40,56 @@ class PainterView : ConstraintLayout {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
-        val sizeClickListener = OnClickListener {
-            mBrushSize = when(it) {
-                mBinding.btnSize1 -> 1
-                mBinding.btnSize2 -> 2
-                mBinding.btnSize3 -> 3
-                else -> 1
-            }
-        }
-
-        mBinding.btnSize1.setOnClickListener(sizeClickListener)
-        mBinding.btnSize2.setOnClickListener(sizeClickListener)
-        mBinding.btnSize3.setOnClickListener(sizeClickListener)
-
-        val colorClickListener = OnClickListener {
-            mBrushColor = when(it) {
-                mBinding.btnColorRed -> Color.RED
-                mBinding.btnColorGreen -> Color.GREEN
-                mBinding.btnColorBlue -> Color.BLUE
-                mBinding.btnColorClear -> Color.TRANSPARENT
-                else -> Color.BLACK
-            }
-            isEreaser = it == mBinding.btnColorClear
-        }
-        mBinding.btnColorRed.setOnClickListener(colorClickListener)
-        mBinding.btnColorGreen.setOnClickListener(colorClickListener)
-        mBinding.btnColorBlue.setOnClickListener(colorClickListener)
-        mBinding.btnColorClear.setOnClickListener(colorClickListener)
-
-        val historyClickListener = OnClickListener {
-            val isUndo = it == mBinding.btnUndo
-            val loadTargetHistory = if(isUndo) lastHistory else undoHistory
-            var rewriteTargetHistory = if(isUndo) undoHistory else lastHistory
-
-            if(!loadTargetHistory.isEmpty()) {
-                val historyPoints = loadTargetHistory.popLastHistory()
-                if(isUndo) {
-                    drawPoints.removeAll(historyPoints)
-                }else {
-                    drawPoints.addAll(historyPoints)
-                }
-
-                val rewritePoints = ArrayList<DrawPoint>()
-                rewritePoints.addAll(historyPoints)
-                rewriteTargetHistory.pushNewHistory(rewritePoints)
-
-                invalidate()
-            }
-        }
-
-
-        mBinding.btnUndo.setOnClickListener(historyClickListener)
-        mBinding.btnRedo.setOnClickListener(historyClickListener)
-
-        mBinding.btnClearAll.setOnClickListener {
-            drawPoints.clear()
-        }
-
         mPaint = getNewPaint()
 
-        setWillNotDraw(false)
         setLayerType(View.LAYER_TYPE_SOFTWARE, null)
     }
 
+    fun undo() {
+        undoOrReDo(true)
+    }
+
+    fun redo() {
+        undoOrReDo(false)
+    }
+
+    fun undoOrReDo(isUndo: Boolean) {
+        val loadTargetHistory = if(isUndo) lastHistory else undoHistory
+        var rewriteTargetHistory = if(isUndo) undoHistory else lastHistory
+
+        if(!loadTargetHistory.isEmpty()) {
+            val historyPoints = loadTargetHistory.popLastHistory()
+
+            if(isUndo && !isLastActionClear) {
+                drawPoints.removeAll(historyPoints)
+            }else {
+                drawPoints.addAll(historyPoints)
+            }
+
+            val rewritePoints = ArrayList<PaintView.DrawPoint>()
+            rewritePoints.addAll(historyPoints)
+            rewriteTargetHistory.pushNewHistory(rewritePoints)
+
+            invalidate()
+        }
+    }
+
+    fun isEnableUndo(): Boolean {
+        return !lastHistory.isEmpty()
+    }
+
+    fun isEnableRedo(): Boolean {
+        return !undoHistory.isEmpty()
+    }
+
+    fun clearAll() {
+        isLastActionClear = true
+        val rewritePoints = ArrayList<PaintView.DrawPoint>()
+        rewritePoints.addAll(drawPoints)
+        lastHistory.pushNewHistory(rewritePoints)
+        drawPoints.clear()
+        invalidate()
+    }
     private fun getNewPaint() : Paint {
         val mPaint = Paint()
         mPaint.style = Paint.Style.STROKE
@@ -154,6 +139,7 @@ class PainterView : ConstraintLayout {
 
             if(action == MotionEvent.ACTION_UP) {
                 mPaint = null
+                isLastActionClear = false
                 lastHistory.pushNewHistory(lastPoints)
             }
 
@@ -164,27 +150,20 @@ class PainterView : ConstraintLayout {
 
     override fun invalidate() {
         super.invalidate()
-        mBinding.btnUndo.isEnabled = !lastHistory.isEmpty()
-        mBinding.btnRedo.isEnabled = !undoHistory.isEmpty()
+        invalidateListener.run()
     }
 
     internal class DrawPoint(var x: Float, var y: Float, var isDraw: Boolean, var paint: Paint)
 
     internal class DrawPointHistory() {
-        private val MAX_HISTORY_COUNT = 10;
-        private val points = ArrayList<ArrayList<DrawPoint>>()
+        private val points = Stack<ArrayList<DrawPoint>>(10)
 
         fun pushNewHistory(pointList: ArrayList<DrawPoint>) {
-            points.add(pointList)
-            if(points.size > MAX_HISTORY_COUNT) {
-                points.removeAt(0)
-            }
+            points.pushNewThing(pointList)
         }
 
         fun popLastHistory(): ArrayList<DrawPoint> {
-            val returnHistory = points[points.size-1]
-            points.remove(returnHistory)
-            return returnHistory
+            return points.popLastThing()
         }
 
         fun isEmpty(): Boolean {

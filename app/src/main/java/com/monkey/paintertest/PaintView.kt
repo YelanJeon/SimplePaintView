@@ -131,6 +131,7 @@ class PaintView : View {
             if(action == MotionEvent.ACTION_DOWN) {
                 mPaint = getNewPaint()
                 lastPoints = ArrayList<DrawPoint>()
+                undoHistory.clear()
             }
 
             val drawPoint = DrawPoint(x, y, action != MotionEvent.ACTION_DOWN, mPaint!!);
@@ -168,6 +169,10 @@ class PaintView : View {
 
         fun isEmpty(): Boolean {
             return points.isEmpty()
+        }
+
+        fun clear() {
+            points.clear()
         }
     }
 }

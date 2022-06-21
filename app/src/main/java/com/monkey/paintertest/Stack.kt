@@ -22,6 +22,9 @@ class Stack<T> (private val maxSize: Int) {
         return stack.isEmpty()
     }
 
+    fun clear() {
+        stack.clear()
+    }
 
 
 }

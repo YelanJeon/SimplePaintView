@@ -20,7 +20,6 @@ class PaintView : View {
 
     var mBrushColor:Int = Color.BLACK
     var isEreaser:Boolean = false
-    var isLastActionClear = false
 
     lateinit var invalidateListener: Runnable
 
@@ -60,7 +59,7 @@ class PaintView : View {
         if(!loadTargetHistory.isEmpty()) {
             val historyPoints = loadTargetHistory.popLastHistory()
 
-            if(isUndo && !isLastActionClear) {
+            if(isUndo) {
                 drawPoints.removeAll(historyPoints)
             }else {
                 drawPoints.addAll(historyPoints)
@@ -83,10 +82,6 @@ class PaintView : View {
     }
 
     fun clearAll() {
-        isLastActionClear = true
-        val rewritePoints = ArrayList<PaintView.DrawPoint>()
-        rewritePoints.addAll(drawPoints)
-        lastHistory.pushNewHistory(rewritePoints)
         drawPoints.clear()
         invalidate()
     }
@@ -140,7 +135,6 @@ class PaintView : View {
 
             if(action == MotionEvent.ACTION_UP) {
                 mPaint = null
-                isLastActionClear = false
                 lastHistory.pushNewHistory(lastPoints)
             }
 

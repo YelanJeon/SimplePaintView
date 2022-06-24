@@ -4,6 +4,7 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import com.monkey.paintertest.databinding.ActivityMainBinding
 import java.util.ArrayList
 
@@ -37,7 +38,7 @@ class MainActivity: Activity() {
                 mBinding.btnColorClear -> Color.TRANSPARENT
                 else -> Color.BLACK
             }
-            mBinding.paint.isEreaser = it == mBinding.btnColorClear
+            mBinding.paint.isEraser = it == mBinding.btnColorClear
         }
         mBinding.btnColorRed.setOnClickListener(colorClickListener)
         mBinding.btnColorGreen.setOnClickListener(colorClickListener)
@@ -54,6 +55,15 @@ class MainActivity: Activity() {
         mBinding.paint.invalidateListener = Runnable {
             mBinding.btnUndo.isEnabled = mBinding.paint.isEnableUndo()
             mBinding.btnRedo.isEnabled = mBinding.paint.isEnableRedo()
+        }
+
+        mBinding.btnMode.setOnClickListener {
+            mBinding.paint.switchMode()
+            Toast.makeText(this@MainActivity, "Mode : " + if(mBinding.paint.isDrawingMode) "DRAWING" else "SCROLL", Toast.LENGTH_SHORT).show()
+        }
+
+        mBinding.btnShowBackground.setOnClickListener {
+            mBinding.paint.switchBackground()
         }
     }
 }

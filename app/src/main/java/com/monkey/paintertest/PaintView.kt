@@ -11,15 +11,17 @@ import java.util.ArrayList
 class PaintView : View {
     private var mPaint: Paint?
     private var drawPoints = ArrayList<DrawPoint>()
-
     private var lastPoints = ArrayList<DrawPoint>()
+
     private val lastHistory = DrawPointHistory()
-
     private val undoHistory = DrawPointHistory()
-    var mBrushSize = 1
 
+    var mBrushSize = 1
     var mBrushColor:Int = Color.BLACK
-    var isEreaser:Boolean = false
+
+    var isEraser:Boolean = false
+    var isDrawingMode: Boolean = true
+    var showBackground: Boolean = false
 
     lateinit var invalidateListener: Runnable
 
@@ -83,6 +85,8 @@ class PaintView : View {
 
     fun clearAll() {
         drawPoints.clear()
+        lastHistory.clear()
+        undoHistory.clear()
         invalidate()
     }
     private fun getNewPaint() : Paint {
@@ -93,7 +97,7 @@ class PaintView : View {
         mPaint.isDither = true
         mPaint.strokeWidth = 15f * mBrushSize
         mPaint.color = mBrushColor
-        if(isEreaser) {
+        if(isEraser) {
             mPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         }else{
             mPaint.xfermode = null
@@ -103,6 +107,12 @@ class PaintView : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+
+        if(showBackground) {
+            canvas?.drawColor(Color.WHITE)
+        }else{
+            canvas?.drawColor(Color.TRANSPARENT)
+        }
 
         for (i in drawPoints.indices) {
             if (drawPoints[i].isDraw) {
@@ -117,30 +127,42 @@ class PaintView : View {
         }
     }
 
+    fun switchMode() {
+        isDrawingMode = !isDrawingMode
+    }
+
+    fun switchBackground() {
+        showBackground = !showBackground
+        invalidate()
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val action = event.action
-        val x = event.x
-        val y = event.y
+        if(isDrawingMode) {
+            val action = event.action
+            val x = event.x
+            val y = event.y
 
-        if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
-            if(action == MotionEvent.ACTION_DOWN) {
-                mPaint = getNewPaint()
-                lastPoints = ArrayList<DrawPoint>()
-                undoHistory.clear()
+            if(action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
+                if(action == MotionEvent.ACTION_DOWN) {
+                    mPaint = getNewPaint()
+                    lastPoints = ArrayList<DrawPoint>()
+                    undoHistory.clear()
+                }
+
+                val drawPoint = DrawPoint(x, y, action != MotionEvent.ACTION_DOWN, mPaint!!);
+                drawPoints.add(drawPoint)
+                lastPoints.add(drawPoint)
+
+                if(action == MotionEvent.ACTION_UP) {
+                    mPaint = null
+                    lastHistory.pushNewHistory(lastPoints)
+                }
+
+                invalidate()
             }
-
-            val drawPoint = DrawPoint(x, y, action != MotionEvent.ACTION_DOWN, mPaint!!);
-            drawPoints.add(drawPoint)
-            lastPoints.add(drawPoint)
-
-            if(action == MotionEvent.ACTION_UP) {
-                mPaint = null
-                lastHistory.pushNewHistory(lastPoints)
-            }
-
-            invalidate()
         }
-        return true
+
+        return isDrawingMode
     }
 
     override fun invalidate() {

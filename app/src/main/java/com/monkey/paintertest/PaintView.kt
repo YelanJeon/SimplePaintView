@@ -54,7 +54,7 @@ class PaintView : View {
         undoOrReDo(false)
     }
 
-    fun undoOrReDo(isUndo: Boolean) {
+    private fun undoOrReDo(isUndo: Boolean) {
         val loadTargetHistory = if(isUndo) lastHistory else undoHistory
         var rewriteTargetHistory = if(isUndo) undoHistory else lastHistory
 

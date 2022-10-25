@@ -24,6 +24,7 @@ class MainActivity: Activity() {
                 mBinding.btnSize3 -> 3
                 else -> 1
             }
+            Toast.makeText(this@MainActivity, "brushSize : " + mBinding.paint.mBrushSize, Toast.LENGTH_SHORT).show()
         }
 
         mBinding.btnSize1.setOnClickListener(sizeClickListener)
@@ -38,7 +39,17 @@ class MainActivity: Activity() {
                 mBinding.btnColorClear -> Color.TRANSPARENT
                 else -> Color.BLACK
             }
+
+            val colorCode = when(it) {
+                mBinding.btnColorRed -> "RED"
+                mBinding.btnColorGreen -> "GREEN"
+                mBinding.btnColorBlue -> "BLUE"
+                mBinding.btnColorClear -> "TRANSPARENT"
+                else -> "BLACK"
+            }
+
             mBinding.paint.isEraser = it == mBinding.btnColorClear
+            Toast.makeText(this@MainActivity, "color : $colorCode", Toast.LENGTH_SHORT).show()
         }
         mBinding.btnColorRed.setOnClickListener(colorClickListener)
         mBinding.btnColorGreen.setOnClickListener(colorClickListener)
@@ -63,6 +74,7 @@ class MainActivity: Activity() {
         }
 
         mBinding.btnShowBackground.setOnClickListener {
+            Toast.makeText(this@MainActivity, "Background visibility : " + if(mBinding.paint.showBackground) "VISIBLE" else "GONE", Toast.LENGTH_SHORT).show()
             mBinding.paint.switchBackground()
         }
     }
